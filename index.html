@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Dataset Browser</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #667eea 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --text-primary: #ffffff;
+      --text-secondary: #bbbbbb;
+      --accent: #667eea;
+      --dark-bg: #0a0a0a;
+    }
+
+    .background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      z-index: -1;
+      animation: backgroundMove 20s ease-in-out infinite;
+    }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 18px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 24px rgba(102, 126, 234, 0.08);
+      margin-left: 2%;
+    }
+
+    .form-check-input:checked {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .form-check-label {
+      color: var(--text-secondary);
+    }
+
+    .form-check-input {
+      cursor: pointer;
+    }
+
+    .form-check-input:focus {
+      box-shadow: none;
+    }
+
+    .dataset-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .dataset-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page-item .page-link {
+      background: var(--card-bg);
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .page-item.active .page-link {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Removed csv file input styles */
+
+    .sidebar {
+      background: #f8f3e9;
+      border-radius: 18px;
+      padding: 24px;
+      border: 1px solid #e2d8c3;
+      box-shadow: 0 4px 24px rgba(166, 124, 82, 0.07);
+    }
+
+    .dataset-card {
+      background: #f8f3e9;
+      border-radius: 22px;
+      padding: 24px;
+      color: #4b3f2a;
+      border: 1px solid #e2d8c3;
+      box-shadow: 0 8px 32px rgba(166, 124, 82, 0.10);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .dataset-card:hover {
+      transform: translateY(-7px) scale(1.02);
+      box-shadow: 0 16px 40px rgba(166, 124, 82, 0.16);
+    }
+
+    .badge {
+      font-size: 0.85rem;
+      border-radius: 0.7em;
+      padding: 0.25em 0.7em;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(166, 124, 82, 0.07);
+      border: 1px solid #e2d8c3;
+      background: inherit;
+      color: #4b3f2a !important;
+    }
+
+    h1.fw-bold {
+      color: #a67c52;
+      font-size: 2.7rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5em;
+    }
+
+    strong {
+      color: #a67c52;
+      font-weight: 600;
+    }
+
+    .form-check-label .badge {
+      margin-left: 0.3em;
+    }
+
+    .page-link {
+      border-radius: 8px !important;
+      background: #f8f3e9;
+      color: #4b3f2a;
+      border: 1px solid #e2d8c3;
+    }
+
+    .page-item.active .page-link {
+      background: #a67c52;
+      color: #fff;
+      border-color: #a67c52;
+    }
+
+    a {
+      color: #a67c52;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #8c6239;
+    }
+
+    .text-secondary {
+      color: #8c6239 !important;
+    }
+
+    .music-title {
+      color: #a67c52;
+      font-size: 2.7rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5em;
+      text-shadow: 0 2px 8px rgba(166, 124, 82, 0.12);
+      -webkit-background-clip: unset;
+      -webkit-text-fill-color: unset;
+      background: none;
+    }
+
+    .box {
+      max-width: 70%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f5ecd7;
+      background-image: url('https://heropatterns.com/static/svg/musical-notes.svg');
+      background-repeat: repeat;
+      background-size: 300px 300px;
+      color: #4b3f2a;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container-fluid">
+  <div class="text-center py-4">
+    <h1 class="fw-bold music-title">🎵 MuseDB</h1>
+    <p class="text-secondary">A Comprehensive database of music datasets </p>
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search datasets...">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3 p-4 sidebar">
+      <h5 class="fw-bold mb-3">Filters</h5>
+      <div id="filter-container"></div>
+    </div>
+    <div class="col-md-9 p-4 box">
+      <div class="row" id="dataset-container"></div>
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script>
+    let datasets = [];
+    let currentPage = 1;
+    const perPage = 10;
+    const filters = {};
+
+    // CSV upload input removed — data is loaded automatically from data.csv (if present)
+    // Any manual upload feature was intentionally removed per request.
+
+    function renderFilters() {
+      const filterFields = ["Genre", "Region", "Musical Focus", "Usability", "Representation"];
+      const filterContainer = document.getElementById("filter-container");
+      filterContainer.innerHTML = "";
+
+      filterFields.forEach(field => {
+        const values = new Set();
+        datasets.forEach(d => d[field]?.split(',').forEach(v => v && values.add(v.trim())));
+        const section = document.createElement("div");
+        section.classList.add("mb-3");
+        section.innerHTML = `<strong>${field}</strong>`;
+        values.forEach(val => {
+          const id = `${field}-${val}`;
+          const color = getColorForValue(field, val);
+          section.innerHTML += `
+        <div class="form-check d-flex align-items-center mb-1">
+          <input class="form-check-input" type="checkbox" value="${val}" id="${id}" onchange="toggleFilter('${field}', '${val}')">
+          <label class="form-check-label ms-2" for="${id}">
+            <span class="badge" style="background:${color};color:#fff;">${val}</span>
+          </label>
+        </div>
+      `;
+        });
+        filterContainer.appendChild(section);
+      });
+    }
+
+    function toggleFilter(field, value) {
+      if (!filters[field]) filters[field] = new Set();
+      filters[field].has(value) ? filters[field].delete(value) : filters[field].add(value);
+      currentPage = 1;
+      renderDatasets();
+    }
+
+    function applyFilters(data) {
+      return data.filter(d => {
+        return Object.entries(filters).every(([field, vals]) => {
+          if (vals.size === 0) return true;
+          return [...vals].some(val => d[field]?.includes(val));
+        });
+      });
+    }
+
+    const categoryColors = {
+      "Genre": ["#ffe5ec", "#e2f0cb", "#d0ebff", "#fff3cd", "#e0eafc", "#fcefee", "#eaf6fb", "#f6e7d7", "#e7eaf6", "#f6e7f7"],
+      "Region": ["#e2f0cb", "#fff3cd", "#d0ebff", "#ffe5ec", "#e0eafc", "#fcefee", "#eaf6fb", "#f6e7d7", "#e7eaf6", "#f6e7f7"],
+      "Musical Focus": ["#e0eafc", "#fcefee", "#eaf6fb", "#ffe5ec", "#e2f0cb", "#d0ebff", "#fff3cd", "#f6e7d7", "#e7eaf6", "#f6e7f7"],
+      "Usability": ["#fcefee", "#eaf6fb", "#ffe5ec"],
+      "Representation": ["#eaf6fb", "#f6e7d7", "#e7eaf6", "#f6e7f7", "#ffe5ec", "#e2f0cb", "#d0ebff", "#fff3cd", "#e0eafc", "#fcefee"]
+    };
+    const categoryValueColorMap = {};
+
+    function getColorForValue(category, val) {
+      if (!categoryValueColorMap[category]) categoryValueColorMap[category] = {};
+      if (!categoryValueColorMap[category][val]) {
+        const palette = categoryColors[category] || categoryColors["Genre"];
+        const idx = Object.keys(categoryValueColorMap[category]).length % palette.length;
+        categoryValueColorMap[category][val] = palette[idx];
+      }
+      return categoryValueColorMap[category][val];
+    }
+
+    function renderBadges(field, valueString) {
+      if (!valueString) return "-";
+      return valueString.split(",").map(val => {
+        val = val.trim();
+        if (!val) return "";
+        const color = getColorForValue(field, val);
+        return `<span class="badge me-1" style="background:${color};color:#4b3f2a;">${val}</span>`;
+      }).join(" ");
+    }
+
+    function renderDatasets() {
+      const container = document.getElementById("dataset-container");
+      container.innerHTML = "";
+      const filtered = applyFilters(datasets);
+      const total = filtered.length;
+      const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+      paginated.forEach(d => {
+        container.innerHTML += `
+      <div class="col-md-6 mb-4">
+        <div class="dataset-card">
+          <h5>${d.Name}</h5>
+          <div class="mb-2">
+            <a href="${d.Link}" target="_blank" title="Dataset Website" style="font-size:1.5rem; margin-right:10px;">
+              <i class="bi bi-link-45deg"></i>
+            </a>
+            ${d["Paper (if exists)"] ? `
+              <a href="${d["Paper (if exists)"]}" target="_blank" title="View Paper" style="font-size:1.5rem;">
+                <i class="bi bi-file-earmark-pdf"></i>
+              </a>
+            ` : ""}
+          </div>
+          <p><strong>🎼 Genre:</strong> ${renderBadges("Genre", d.Genre)}</p>
+          <p><strong>🌍 Region:</strong> ${renderBadges("Region", d.Region)}</p>
+          <p><strong>🎯 Focus:</strong> ${renderBadges("Musical Focus", d["Musical Focus"])}</p>
+          <p><strong>🛠️ Utility:</strong> ${renderBadges("Utility", d.Utility)}</p>
+          <p><strong>🔊 Has Audio?:</strong> ${d["Has Audio?"] || "-"}</p>
+          <p><strong>🏷️ Labels / Metadata:</strong> ${d["Labels & Metadata"] || "-"}</p>
+          <p><strong>🎸 Instruments:</strong> ${d["Instruments"] || "-"}</p>
+
+        </div>
+      </div>
+    `;
+      });
+      renderPagination(total);
+    }
+
+    function renderPagination(totalItems) {
+      const pageCount = Math.ceil(totalItems / perPage);
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+      for (let i = 1; i <= pageCount; i++) {
+        pagination.innerHTML += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+        </li>
+      `;
+      }
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderDatasets();
+    }
+
+    let searchQuery = "";
+
+    document.getElementById("searchInput").addEventListener("input", function (e) {
+      searchQuery = e.target.value.toLowerCase();
+      currentPage = 1;
+      renderDatasets();
+    });
+
+    function applyFilters(data) {
+      return data.filter(d => {
+        const passesFilters = Object.entries(filters).every(([field, vals]) => {
+          if (vals.size === 0) return true;
+          return [...vals].some(val => d[field]?.includes(val));
+        });
+        if (!searchQuery) return passesFilters;
+        const cardText = [
+          d.Name, d.Genre, d.Region, d["Musical Focus"], d.Utility,
+          d["Has Audio?"], d["Labels & Metadata"], d["Instruments"]
+        ].map(x => (x || "").toLowerCase()).join(" ");
+        return passesFilters && cardText.includes(searchQuery);
+      });
+    }
+
+    // Attempt to load a default data.csv from the same folder as index.html.
+    (function tryLoadDefaultCSV() {
+      fetch('data.csv')
+        .then(resp => {
+          if (!resp.ok) throw new Error('data.csv not found');
+          return resp.text();
+        })
+        .then(text => {
+          Papa.parse(text, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (result) => {
+              datasets = result.data;
+              // Reset filters and UI
+              Object.keys(filters).forEach(k => filters[k] = new Set());
+              document.getElementById("filter-container").innerHTML = "";
+              currentPage = 1;
+              renderFilters();
+              renderDatasets();
+            }
+          });
+        })
+        .catch(() => {
+          console.log('No data.csv found; add data.csv next to index.html on the server.');
+        });
+    })();
+
+  </script>
+</body>
+
+</html>
